@@ -72,10 +72,10 @@ impl PerCpu {
             println!("boot vm on CPU{}!", self_id);
             self.arch_cpu.run();
         } else {
-            crate::imsic::imsic_init(self_id);
-            unsafe {
-                core::arch::asm!("wfi");
-            }
+            // crate::imsic::imsic_init();
+            // unsafe {
+            //     core::arch::asm!("wfi");
+            // }
             self.arch_cpu.run2();
         }
     }

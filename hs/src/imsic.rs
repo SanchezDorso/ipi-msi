@@ -240,7 +240,7 @@ fn imsic_clear(mode: PrivMode, which: usize) {
     };
 }
 
-pub fn imsic_init(hart: usize) {
+pub fn imsic_init() {
     // let hartid = csr_read!("mhartid");
     // First, enable the interrupt file
     // 0 = disabled
