@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 use crate::console::console_irq;
-// use core::{arch::asm, ptr::write_volatile};
-use core::arch::asm;
+use core::{arch::asm, ptr::write_volatile};
 
 // Each hart is a page away from each other (4096 bytes or 0x1000)
 const IMSIC_HART_STRIDE: usize = 0x1000;
@@ -217,6 +216,13 @@ fn imsic_trigger(mode: PrivMode, which: usize) {
     };
 }
 
+pub fn imsic_ipi_trigger(hartid: usize){
+    unsafe {
+        // We are required to write only 32 bits.
+        write_volatile(imsic_vs(hartid) as *mut u32, 1);
+    }
+}
+
 fn imsic_clear(mode: PrivMode, which: usize) {
     let eipbyte = EIP + XLEN_STRIDE * which / XLEN;
     let bit = which % XLEN;
@@ -307,16 +313,17 @@ fn imsic_pop(pr: PrivMode) -> u32 {
 }
 
 /// Handle an IMSIC trap. Called from `trap::rust_trap`
-pub fn imsic_handle(pm: PrivMode) {
+pub fn imsic_handle(pm: PrivMode,hartid: usize) {
     let msgnum = imsic_pop(pm);
     match msgnum {
         0 => println!("Spurious 'no' message."),
-        1 => println!("IPI from Boot CPU."),
+        1 => println!("IPI from Boot CPU to another.\n"),
         2 => println!("IN VS-mod triggered by MMIO write successful!"),
         4 => println!("IN VS-mod triggered by EIP successful!"),
         10 => {
             console_irq();
-            println!("IRQ 10: IPI from Boot CPU in VS mod");
+            println!("IRQ 10 to boot CPU");
+            imsic_ipi_trigger(crate::another_hartid(hartid));
         }
         _ => println!("Unknown msi #{}", msgnum),
     }

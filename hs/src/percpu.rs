@@ -2,19 +2,23 @@ use crate::consts::{PER_CPU_ARRAY_PTR, PER_CPU_SIZE};
 use core::sync::atomic::Ordering;
 use crate::vs_main::secondary_vs_main;
 pub struct ArchCpu {
+    pub x: [usize; 32],
     pub hartid: usize,
 }
 
 impl ArchCpu {
     pub fn new(hartid: usize) -> Self {
         ArchCpu {
+            x: [0; 32],
             hartid,
         }
     }
     pub fn get_hartid(&self) -> usize {
         self.hartid
     }
-    pub fn init(&mut self) -> usize {
+    pub fn init(&mut self, cpu_id: usize) -> usize {
+        csr_write!("sscratch", self as *const _ as usize);
+        self.hartid = cpu_id; //cpu id
         0
     }
     pub fn run_boot(&mut self) {
@@ -63,7 +67,7 @@ impl PerCpu {
     }
 
     pub fn cpu_init(&mut self) {
-        self.arch_cpu.init();
+        self.arch_cpu.init(self.id);
     }
     pub fn run_vm(&mut self) {
         let self_id = self.id;

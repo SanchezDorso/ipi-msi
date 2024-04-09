@@ -79,6 +79,14 @@ static INIT_EARLY_OK: AtomicU32 = AtomicU32::new(0);
 static INITED_CPUS: AtomicU32 = AtomicU32::new(0);
 static INIT_LATE_OK: AtomicU32 = AtomicU32::new(0);
 
+pub fn another_hartid(hartid:usize) -> usize{
+    let hartid2: usize = if hartid == 0 {
+        1
+    } else {
+        0
+    };
+    hartid2
+}
 
 fn primary_init_late() {
     INIT_LATE_OK.store(1, Ordering::Release);
@@ -99,15 +107,8 @@ fn wakeup_secondary_cpus(this_id: usize,dtb: usize) {
 fn primary_init_early(cpuid:usize){
     clear_bss();
     println!("Hello, world!");
-    let mut hartid2:usize = 0;
-    if cpuid == 0 {
-        hartid2 = 1;
-    }
-    else {
-        hartid2 = 0;
-    }
     console::uart_init();
-    aplic::aplic_init(hartid2);
+    aplic::aplic_init(cpuid);
 
     INIT_EARLY_OK.store(1, Ordering::Release);
 }
@@ -142,7 +143,6 @@ macro_rules! csr_read {
 /// the rust entry-point of os
 #[no_mangle]
 pub fn rust_main(cpuid:usize, host_dtb: usize) -> ! {
-    csr_write!("sscratch", &TRAP_FRAMES[cpuid]);
     let mut is_primary = false;
     if MASTER_CPU.load(Ordering::Acquire) == -1 {
         MASTER_CPU.store(cpuid as i32, Ordering::Release);

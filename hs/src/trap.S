@@ -21,7 +21,8 @@ trap:
     mv      t5, t6
     csrrw   t6, sscratch, t6
     savegp  31, t5
-
+    csrr      a0, sscratch
+    
     call    rust_trap
 
     csrr    t6, sscratch
