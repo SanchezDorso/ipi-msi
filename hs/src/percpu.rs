@@ -1,7 +1,5 @@
-// use riscv::register::sscratch;
-use crate::consts::{INVALID_ADDRESS, PER_CPU_ARRAY_PTR, PER_CPU_SIZE};
+use crate::consts::{PER_CPU_ARRAY_PTR, PER_CPU_SIZE};
 use core::sync::atomic::Ordering;
-use crate::csr::*;
 use crate::vm::vm2_main;
 pub struct ArchCpu {
     pub hartid: usize,
@@ -43,23 +41,12 @@ impl ArchCpu {
             core::arch::asm!("sret");
         }
     }
-    pub fn idle(&self) {
-        unsafe {
-            core::arch::asm!("wfi");
-        }
-        let self_hartid = self.hartid;
-        println!("CPU{} wake up!", self_hartid);
-        clear_csr!(CSR_SIP, 1 << 1);
-    }
 }
 
 pub struct PerCpu {
     pub id: usize,
     pub arch_cpu: ArchCpu,
-    // pub zone: Option<Arc<RwLock<Zone>>>,
-    // pub ctrl_lock: Mutex<()>,
     pub boot_cpu: bool,
-    //percpu stack
 }
 
 impl PerCpu {

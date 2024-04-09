@@ -18,16 +18,11 @@
 #![feature(asm_const)]
 #![feature(naked_functions)]
 use core::arch::{asm, global_asm};
-// use riscv::asm;
 use core::sync::atomic::{AtomicI32, AtomicU32, Ordering};
-// use riscv::asm;
 
 use crate::consts::*;
-// use crate::csr::*;
 use crate::percpu::PerCpu;
-// use spin::Mutex;
 
-// global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("trap.S"));
 
 #[macro_export]
@@ -161,11 +156,6 @@ pub fn rust_main(cpuid:usize, host_dtb: usize) -> ! {
     }
     wait_for(|| ENTERED_CPUS.load(Ordering::Acquire) < MAX_CPU_NUM as _);
     assert_eq!(ENTERED_CPUS.load(Ordering::Acquire), MAX_CPU_NUM as _);
-    // println!(
-    //     "{} CPU {} entered.",
-    //     if is_primary { "Primary" } else { "Secondary" },
-    //     cpuid
-    // );
 
     if is_primary {
         println!("Primary CPU {} entered",cpuid);
@@ -187,11 +177,6 @@ pub fn rust_main(cpuid:usize, host_dtb: usize) -> ! {
     }
 
     cpu.run_vm();
-    // println!("ENTER S mod !\n");
-
-    // imsic::imsic_init();
-    // aplic::aplic_init();
-    // console::run();
     loop {
         unsafe {
             asm!("wfi");
@@ -206,7 +191,5 @@ pub mod trap;
 pub mod consts;
 pub mod entry;
 pub mod percpu;
-pub mod csr;
+// pub mod csr;
 pub mod vm;
-pub mod context;
-// pub mod syscall;
