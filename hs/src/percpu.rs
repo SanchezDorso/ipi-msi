@@ -1,6 +1,6 @@
 use crate::consts::{PER_CPU_ARRAY_PTR, PER_CPU_SIZE};
 use core::sync::atomic::Ordering;
-use crate::vm::vm2_main;
+use crate::vs_main::secondary_vs_main;
 pub struct ArchCpu {
     pub hartid: usize,
 }
@@ -17,7 +17,7 @@ impl ArchCpu {
     pub fn init(&mut self) -> usize {
         0
     }
-    pub fn run(&mut self) {
+    pub fn run_boot(&mut self) {
         let hartid: usize = self.hartid;
         unsafe {
             core::arch::asm!("
@@ -27,12 +27,12 @@ impl ArchCpu {
             core::arch::asm!("sret");
         }
     }
-    pub fn run2(&mut self) {
+    pub fn run_noboot(&mut self) {
         let hartid2: usize = self.hartid;
         unsafe {
-            let vm2_main_ptr: fn(usize) = vm2_main;
-            let vm2_main_addr = vm2_main_ptr as *const fn(usize) as usize; 
-            core::arch::asm!("mv t0, {0}", in(reg) vm2_main_addr);
+            let secondary_vs_main_ptr: fn(usize) = secondary_vs_main;
+            let secondary_vs_main_addr = secondary_vs_main_ptr as *const fn(usize) as usize; 
+            core::arch::asm!("mv t0, {0}", in(reg) secondary_vs_main_addr);
             core::arch::asm!("csrw sepc ,t0");
             core::arch::asm!("
             mv a0, {0}", 
@@ -70,13 +70,13 @@ impl PerCpu {
         // println!("prepare CPU{} for vm run!", self_id);
         if self.boot_cpu {
             println!("boot vm on CPU{}!", self_id);
-            self.arch_cpu.run();
+            self.arch_cpu.run_boot();
         } else {
             // crate::imsic::imsic_init();
             // unsafe {
             //     core::arch::asm!("wfi");
             // }
-            self.arch_cpu.run2();
+            self.arch_cpu.run_noboot();
         }
     }
     

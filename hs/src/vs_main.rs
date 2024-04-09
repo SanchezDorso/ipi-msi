@@ -7,7 +7,7 @@ use crate::TRAP_FRAMES;
 use core::ptr::write_volatile;
 // static mut
 #[no_mangle]
-pub fn vm_main(hartid: usize) -> (){
+pub fn primary_vs_main(hartid: usize) -> (){
     // println!("Primary CPU{} enter VS mod ",hartid);
     csr_write!("sscratch", &TRAP_FRAMES[hartid]);
     imsic_init();
@@ -25,7 +25,7 @@ pub fn vm_main(hartid: usize) -> (){
     crate::abort()
     // console::run();
 }
-pub fn vm2_main(hartid2:usize) -> (){
+pub fn secondary_vs_main(hartid2:usize) -> (){
     println!("\n Secondary CPU {} enter VS mod ",hartid2);
     csr_write!("sscratch", &TRAP_FRAMES[hartid2]);
     imsic_init();
