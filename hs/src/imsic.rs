@@ -313,16 +313,23 @@ fn imsic_pop(pr: PrivMode) -> u32 {
 }
 
 /// Handle an IMSIC trap. Called from `trap::rust_trap`
-pub fn imsic_handle(pm: PrivMode,hartid: usize) {
+pub fn imsic_handle(pm: PrivMode, hartid: usize, boot_cpu:bool) {
     let msgnum = imsic_pop(pm);
     match msgnum {
         0 => println!("Spurious 'no' message."),
-        1 => println!("IPI from Boot CPU to another.\n"),
+        1 => {
+            if boot_cpu{
+                println!("IPI from Boot CPU {} to another.\n",hartid);
+            }
+            else {
+                println!("IPI from Boot CPU {} to another.\n",crate::another_hartid(hartid));
+            }
+        }
         2 => println!("IN VS-mod triggered by MMIO write successful!"),
         4 => println!("IN VS-mod triggered by EIP successful!"),
         10 => {
             console_irq();
-            println!("IRQ 10 to boot CPU");
+            println!("IRQ 10 to boot CPU {}",hartid);
             imsic_ipi_trigger(crate::another_hartid(hartid));
         }
         _ => println!("Unknown msi #{}", msgnum),

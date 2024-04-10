@@ -1,7 +1,3 @@
-// use core::arch::asm;
-// use crate::aplic;
-// use crate::aplic::aplic_init;
-// use crate::console;
 use crate::imsic::*;
 use crate::TRAP_FRAMES;
 // static mut
@@ -11,6 +7,7 @@ pub fn primary_vs_main(hartid: usize) -> (){
     csr_write!("sscratch", &TRAP_FRAMES[0]);
     unsafe {
         TRAP_FRAMES[0][35] = hartid;  
+        TRAP_FRAMES[0][34] = 1;  
     }  
     imsic_init();
     imsic_ipi_trigger(crate::another_hartid(hartid));
@@ -21,6 +18,7 @@ pub fn secondary_vs_main(hartid2:usize) -> (){
     csr_write!("sscratch", &TRAP_FRAMES[1]);
     unsafe {
         TRAP_FRAMES[1][35] = hartid2;  
+        TRAP_FRAMES[0][34] = 0;  
     }  
     imsic_init();
     crate::abort();
