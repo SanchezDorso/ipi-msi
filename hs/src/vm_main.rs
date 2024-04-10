@@ -2,7 +2,7 @@ use crate::imsic::*;
 use crate::TRAP_FRAMES;
 // static mut
 #[no_mangle]
-pub fn primary_vs_main(hartid: usize) -> (){
+pub fn primary_vm_main(hartid: usize) -> (){
     // println!("Primary CPU{} enter VS mod ",hartid);
     csr_write!("sscratch", &TRAP_FRAMES[0]);
     unsafe {
@@ -13,7 +13,7 @@ pub fn primary_vs_main(hartid: usize) -> (){
     imsic_ipi_trigger(crate::another_hartid(hartid));
     crate::abort()
 }
-pub fn secondary_vs_main(hartid2:usize) -> (){
+pub fn secondary_vm_main(hartid2:usize) -> (){
     println!("\nSecondary CPU {} enter VS mod ",hartid2);
     csr_write!("sscratch", &TRAP_FRAMES[1]);
     unsafe {

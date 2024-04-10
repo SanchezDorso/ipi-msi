@@ -191,4 +191,4 @@ pub mod trap;
 pub mod consts;
 pub mod entry;
 pub mod percpu;
-pub mod vs_main;
+pub mod vm_main;

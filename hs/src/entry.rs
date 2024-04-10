@@ -86,7 +86,7 @@ pub unsafe extern "C" fn _start() -> i32 {
         la      t0, trap
         csrw    stvec, t0
     
-        la      t0, primary_vs_main
+        la      t0, primary_vm_main
         csrw    sepc, t0
         
         #  1 << 8 is SPP 1 << 5 is SPIE

@@ -1,6 +1,6 @@
 use crate::consts::{PER_CPU_ARRAY_PTR, PER_CPU_SIZE};
 use core::sync::atomic::Ordering;
-use crate::vs_main::secondary_vs_main;
+use crate::vm_main::secondary_vm_main;
 pub struct ArchCpu {
     pub x: [usize; 32],
     pub hartid: usize,
@@ -34,9 +34,9 @@ impl ArchCpu {
     pub fn run_noboot(&mut self) {
         let hartid2: usize = self.hartid;
         unsafe {
-            let secondary_vs_main_ptr: fn(usize) = secondary_vs_main;
-            let secondary_vs_main_addr = secondary_vs_main_ptr as *const fn(usize) as usize; 
-            core::arch::asm!("mv t0, {0}", in(reg) secondary_vs_main_addr);
+            let secondary_vm_main_ptr: fn(usize) = secondary_vm_main;
+            let secondary_vm_main_addr = secondary_vm_main_ptr as *const fn(usize) as usize; 
+            core::arch::asm!("mv t0, {0}", in(reg) secondary_vm_main_addr);
             core::arch::asm!("csrw sepc ,t0");
             core::arch::asm!("
             mv a0, {0}", 
