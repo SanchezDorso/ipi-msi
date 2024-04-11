@@ -8,6 +8,8 @@ objcopy := rust-objcopy --binary-architecture=riscv64
 
 .PHONY: kernel build clean qemu run env
 
+run: run-inner
+
 env:
 	cargo install cargo-binutils
 	rustup component add llvm-tools-preview rustfmt
@@ -28,7 +30,7 @@ build: $(bin)
     	FW_PAYLOAD_PATH=/home/dorso/msi/ipi_msi/hs/target/riscv64gc-unknown-none-elf/debug/hs.bin
 clean:
 	cargo clean
-run:	
+run-inner: build	
 	qemu-system-riscv64 -nographic \
     -M virt,aclint=on,aia=aplic-imsic,aia-guests=1 \
 	-cpu rv64 -m 3G -smp 2 \
