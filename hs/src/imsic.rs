@@ -247,53 +247,14 @@ fn imsic_clear(mode: PrivMode, which: usize) {
 }
 
 pub fn imsic_init() {
-    // let hartid = csr_read!("mhartid");
-    // First, enable the interrupt file
-    // 0 = disabled
-    // 1 = enabled
-    // 0x4000_0000 = use PLIC instead
-    // imsic_write(MISELECT, EIDELIVERY);
-    // imsic_write(MIREG, 1);
     imsic_write(SISELECT, EIDELIVERY);
     imsic_write(SIREG, 1);
-    // imsic_write(VSISELECT, EIDELIVERY);
-    // imsic_write(VSIREG, 1);
-
-    // Set the interrupt threshold.
-    // 0 = enable all interrupts
-    // P = enable < P only
-    // Priorities come from the interrupt number directly
-    // imsic_write(MISELECT, EITHRESHOLD);
-    // // Only hear 0, 1, 2, 3, and 4
-    // imsic_write(MIREG, 5);
-
-    // Hear message 10
     imsic_write(SISELECT, EITHRESHOLD);
     imsic_write(SIREG, 11);
-
-    // imsic_write(VSISELECT, EITHRESHOLD);
-    // imsic_write(VSIREG, 5);
-
-    // Enable message #10. This will be UART when delegated by the
-    // APLIC.
-    // imsic_enable(PrivMode::Machine, 2);
-    // imsic_enable(PrivMode::Machine, 4);
     imsic_enable(PrivMode::Supervisor, 1);
     imsic_enable(PrivMode::Supervisor, 2);
     imsic_enable(PrivMode::Supervisor, 4);
     imsic_enable(PrivMode::Supervisor, 10);
-    // imsic_enable(PrivMode::VS, 2);
-    // imsic_enable(PrivMode::VS, 4);
-
-    // Trigger interrupt #2
-    // SETEIPNUM no longer works
-    // This can be done via SETEIPNUM CSR or via MMIO
-    // imsic_write!(csr::s::SETEIPNUM, 2);
-    // unsafe {
-    //     // We are required to write only 32 bits.
-    //     write_volatile(imsic_vs(hart) as *mut u32, 2)
-    // }
-    // imsic_trigger(PrivMode::Supervisor, 4);
 }
 
 fn imsic_pop(pr: PrivMode) -> u32 {
